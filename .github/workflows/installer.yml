@@ -1,4 +1,4 @@
-# installer.yml (fixed & consistent)
+
 
 name: CI
 
@@ -11,28 +11,36 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-      - name: Run a multi-line script
+
+      - name: Install dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # Upload artifact
-      - name: Upload build artifact
+      - name: Build executable
+        run: |
+          pip install pyinstaller
+          pyinstaller --onefile "Image Tools.py"
+
+
+      - name: Upload exe
         uses: actions/upload-artifact@v4
         with:
-          name: installer-artifact
-          path: path/to/artifacts
+          name: Image Tools Windows
+          path: dist/Image Tools.exe
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
 
     steps:
@@ -42,5 +50,5 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: installer-artifact
+          name: Image Tools Windows
           path: ./downloaded
